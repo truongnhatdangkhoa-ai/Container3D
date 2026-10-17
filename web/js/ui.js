@@ -54,6 +54,37 @@ new MutationObserver(function(){
   else if(modal.hidden&&t&&t.name==='modal')history.back();
 }).observe(modal,{attributes:true,attributeFilter:['hidden']});
 
+
+/* ---------- vuốt xuống để đóng bảng chức năng và hộp thoại (khi nội dung đang ở đầu); vuốt lên/xuống trong nội dung vẫn cuộn bình thường ---------- */
+function swipeClose(panel,dismiss){
+  var y0=0,x0=0,dy=0,t0=0,drag=false,on=false;
+  panel.addEventListener('touchstart',function(e){
+    if(e.touches.length!==1||e.target.closest('input,textarea,select'))
+      {on=false;return;}
+    y0=e.touches[0].clientY;x0=e.touches[0].clientX;dy=0;t0=Date.now();drag=false;on=true;
+  },{passive:true});
+  panel.addEventListener('touchmove',function(e){
+    if(!on)return;var t=e.touches[0],d=t.clientY-y0;
+    if(!drag){
+      if(d>6&&Math.abs(d)>Math.abs(t.clientX-x0)&&panel.scrollTop<=0){drag=true;y0=t.clientY;d=0;panel.style.transition='none';}
+      else return;
+    }
+    dy=Math.max(0,d);panel.style.transform='translateY('+dy+'px)';
+    if(e.cancelable)e.preventDefault();
+  },{passive:false});
+  function end(){
+    on=false;if(!drag)return;drag=false;
+    panel.style.transition='';
+    if(dy>90||(dy>40&&Date.now()-t0<250)){
+      panel.style.transform='translateY(100%)';dismiss();
+      setTimeout(function(){panel.style.transform='';},500);
+    }else panel.style.transform='';
+  }
+  panel.addEventListener('touchend',end);panel.addEventListener('touchcancel',end);
+}
+swipeClose(sheet.querySelector('.sheet'),function(){closeTop();});
+swipeClose($('c3dDlg'),function(){if(!modal.hidden)modal.hidden=true;});
+
 /* ---------- giao diện Sáng / Tối ---------- */
 var mq=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
 function saved(){try{var t=localStorage.getItem('c3d-theme');return t==='light'||t==='dark'?t:'auto';}catch(e){return'auto';}}
