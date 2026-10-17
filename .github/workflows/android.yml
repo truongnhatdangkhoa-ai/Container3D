@@ -1,0 +1,66 @@
+name: "Bước 2: Build APK + AAB"
+on:
+  workflow_dispatch:
+    inputs:
+      remote_update:
+        description: "Tự cập nhật nội dung từ GitHub Pages (không cần build lại khi sửa web). Bản đưa lên Google Play nên để TẮT."
+        type: boolean
+        default: false
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.0.${{ github.run_number }}
+      REMOTE_UPDATE: ${{ inputs.remote_update && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - name: Chuẩn bị khóa ký (nếu đã có secrets)
+        env:
+          KS_B64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> $GITHUB_ENV
+            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
+            echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
+            echo "SIGNED=1" >> $GITHUB_ENV
+          else
+            echo "::warning::Chưa có khóa ký (secrets) — chỉ build APK thử nghiệm (debug). Làm 'Bước 1' để có APK + AAB phát hành."
+          fi
+      - run: node scripts/prepare-config.js
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/copy-libs.js
+      - run: npx cap add android
+      - run: npx capacitor-assets generate --android
+      - run: node scripts/patch-android.js
+      - run: npx cap sync android
+      - name: Build
+        working-directory: android
+        run: |
+          if [ "$SIGNED" = "1" ]; then ./gradlew assembleRelease bundleRelease --no-daemon
+          else ./gradlew assembleDebug --no-daemon; fi
+      - name: Gom file kết quả
+        run: |
+          mkdir out
+          if [ "$SIGNED" = "1" ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk out/Container3D.apk
+            cp android/app/build/outputs/bundle/release/app-release.aab out/Container3D.aab
+          else
+            cp android/app/build/outputs/apk/debug/app-debug.apk out/Container3D-debug.apk
+          fi
+      - uses: actions/upload-artifact@v4
+        with: { name: Container3D-android, path: out/* }
+      - name: Đăng lên Releases (khi push tag v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with: { files: out/* }
