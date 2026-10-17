@@ -1,0 +1,32 @@
+name: Cập nhật nội dung app (GitHub Pages)
+# Mỗi lần bạn sửa thư mục web/ và push lên main, app trên điện thoại sẽ tự lấy bản mới — KHÔNG cần build lại APK.
+on:
+  push:
+    branches: [main]
+    paths: ['web/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.dep.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/copy-libs.js
+      - name: Đặt số phiên bản
+        run: echo "{\"version\":\"1.0.${{ github.run_number }}\"}" > web/version.json
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: web }
+      - id: dep
+        uses: actions/deploy-pages@v4
