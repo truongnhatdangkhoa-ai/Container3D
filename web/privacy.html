@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chính sách quyền riêng tư — Container 3D</title>
+<style>
+:root{--bg:#f1f4f8;--card:#fff;--ink:#14202e;--muted:#4a5668;--line:#dde3ea;--acc:#0b6fa4}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1218;--card:#171d27;--ink:#e8edf4;--muted:#a9b3c2;--line:#2a3441;--acc:#7dc4ee}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:24px 0 6px}
+.muted{color:var(--muted);font-size:14px}.tg{text-align:right;font-size:14px;margin-bottom:6px}a{color:var(--acc)}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+<main><div class="card">
+<div class="tg"><a href="#" data-l="vi">Tiếng Việt</a> · <a href="#" data-l="en">English</a></div>
+<div id="vi" lang="vi">
+<h1>Chính sách quyền riêng tư</h1>
+<p class="muted">Ứng dụng: <b>Container 3D</b> (com.container3d.app) · Cập nhật lần cuối: 17/10/2026</p>
+<h2>Tóm tắt</h2>
+<p><b>Ứng dụng không thu thập, không gửi đi và không chia sẻ bất kỳ dữ liệu cá nhân nào.</b> Mọi tính toán xếp hàng và dựng hình 3D đều chạy ngay trên điện thoại của bạn, không cần tài khoản và không cần mạng.</p>
+<h2>Dữ liệu lưu trên thiết bị</h2>
+<ul>
+<li>Container tự lưu, danh mục thùng hàng và “Phương án đã lưu” do bạn tạo chỉ nằm trong bộ nhớ của ứng dụng trên máy bạn. Gỡ ứng dụng hoặc xóa dữ liệu ứng dụng sẽ xóa các dữ liệu này.</li>
+<li>Khi bạn bấm “Xuất Excel” hoặc “Lưu ảnh 3D”, tệp được tạo trên máy và mở hộp thoại Chia sẻ của Android để bạn chọn nơi lưu hoặc gửi. Ứng dụng không tự gửi tệp đi đâu.</li>
+</ul>
+<h2>Quyền truy cập</h2>
+<p>Ứng dụng không yêu cầu quyền camera, vị trí, danh bạ, micro hay bộ nhớ chung.</p>
+<h2>Dịch vụ bên thứ ba</h2>
+<p>Ứng dụng không có quảng cáo, không có công cụ phân tích và không tích hợp mạng xã hội. Ứng dụng chứa sẵn các thư viện mã nguồn mở chạy ngoại tuyến (three.js — MIT, SheetJS — Apache-2.0).</p>
+<h2>Trẻ em</h2>
+<p>Ứng dụng là công cụ nghiệp vụ, không nhắm đến trẻ em và không thu thập thông tin của ai.</p>
+<h2>Liên hệ</h2>
+<p>Mọi câu hỏi về quyền riêng tư: <b>truongnhatdangkhoa@gmail.com</b></p>
+</div>
+<div id="en" lang="en" hidden>
+<h1>Privacy Policy</h1>
+<p class="muted">App: <b>Container 3D</b> (com.container3d.app) · Last updated: 17 Oct 2026</p>
+<h2>Summary</h2>
+<p><b>The app does not collect, transmit or share any personal data.</b> All load-planning calculations and 3D rendering run on your phone. No account and no internet connection are needed.</p>
+<h2>Data stored on your device</h2>
+<ul>
+<li>Saved containers, the carton catalogue and “saved plans” that you create stay in the app’s private storage on your device. Uninstalling the app or clearing its data removes them.</li>
+<li>When you tap “Export Excel” or “Save 3D image”, the file is created on the device and the Android Share sheet opens so you choose where to save or send it. The app never sends files anywhere by itself.</li>
+</ul>
+<h2>Permissions</h2>
+<p>The app does not request camera, location, contacts, microphone or shared-storage permissions.</p>
+<h2>Third parties</h2>
+<p>No ads, no analytics, no social integrations. The app bundles open-source libraries that run offline (three.js — MIT, SheetJS — Apache-2.0).</p>
+<h2>Children</h2>
+<p>This is a business utility, not directed to children, and it collects no information from anyone.</p>
+<h2>Contact</h2>
+<p>Privacy questions: <b>truongnhatdangkhoa@gmail.com</b></p>
+</div>
+</div></main>
+<script>
+(function(){var q=(location.search.match(/lang=(vi|en)/)||[])[1]||((navigator.language||'vi').slice(0,2)==='vi'?'vi':'en');
+function s(l){document.getElementById('vi').hidden=l!=='vi';document.getElementById('en').hidden=l!=='en';document.documentElement.lang=l;}
+[].forEach.call(document.querySelectorAll('[data-l]'),function(a){a.addEventListener('click',function(e){e.preventDefault();s(a.dataset.l);});});s(q);})();
+</script>
+</body>
+</html>

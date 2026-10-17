@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+<title>Container 3D</title>
+<!-- Container 3D: mô phỏng xếp hàng vào container lạnh 20'/40' bằng Three.js. Chạy offline, không gọi mạng, dữ liệu lưu trên máy (IndexedDB). -->
+<script>/* Đặt giao diện Sáng/Tối trước khi vẽ (không nháy màu). Lựa chọn lưu ở localStorage 'c3d-theme'. */
+(function(){var t=null;try{t=localStorage.getItem('c3d-theme');}catch(e){}
+var dark=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;
+document.documentElement.setAttribute('data-theme',t==='light'||t==='dark'?t:(dark?'dark':'light'));})();</script>
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/container-3d.css">
+<link rel="stylesheet" href="css/mobile.css">
+</head>
+<body class="c3d-page">
+
+<header class="appbar">
+  <div class="brand"><img class="logo" src="icons/icon-192.png" alt="" width="36" height="36"><h1>Container 3D</h1></div>
+  <button type="button" class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button>
+</header>
+
+<main class="views">
+  <!-- TAB 1: nhập liệu (container + hàng hóa + cách xếp) — JS vẽ vào #c3dSide -->
+  <section class="view on" id="v-in"><aside class="c3d-side" id="c3dSide"></aside></section>
+
+  <!-- TAB 2: khung 3D -->
+  <section class="view" id="v-3d">
+    <div class="c3d-vp">
+      <div class="c3d-vpm" id="c3dVp">
+        <div class="c3d-top"><div class="c3d-tl" id="c3dViews">
+          <button type="button" class="c3d-chip on" data-view="iso">Tổng thể</button>
+          <button type="button" class="c3d-chip" data-view="top">Từ trên</button>
+          <button type="button" class="c3d-chip" data-view="side">Ngang</button>
+          <button type="button" class="c3d-chip" data-view="door">Từ cửa</button>
+        </div></div>
+        <div class="c3d-seq" id="c3dSeq"></div>
+        <div class="c3d-tip" id="c3dTip" hidden></div>
+        <div class="c3d-sel" id="c3dSel" hidden></div>
+      </div>
+    </div>
+    <details class="c3d-acc" open>
+      <summary>Hiển thị</summary>
+      <div class="c3d-tr" id="c3dToggles">
+        <span class="c3d-tl-lab">Ẩn vách</span>
+        <label class="c3d-tg"><input type="checkbox" data-wall="right"> Phải</label>
+        <label class="c3d-tg"><input type="checkbox" data-wall="left"> Trái</label>
+        <label class="c3d-tg"><input type="checkbox" data-wall="ceil"> Trần</label>
+        <label class="c3d-tg"><input type="checkbox" data-wall="front"> Đầu</label>
+        <span class="c3d-sep"></span>
+        <label class="c3d-tg"><input type="checkbox" data-opt="redline" checked> Red line</label>
+        <label class="c3d-tg"><input type="checkbox" data-opt="dims" checked> Kích thước</label>
+        <label class="c3d-tg"><input type="checkbox" data-opt="glabels"> Nhãn hàng</label>
+        <label class="c3d-tg"><input type="checkbox" data-opt="rowlabels"> Số dãy</label>
+        <label class="c3d-tg"><input type="checkbox" data-opt="usable" checked> Vùng chứa hàng</label>
+      </div>
+    </details>
+    <details class="c3d-acc">
+      <summary>Lọc theo lớp / nhóm / dãy</summary>
+      <div class="c3d-layers" id="c3dLayers"></div>
+    </details>
+  </section>
+
+  <!-- TAB 3: kết quả -->
+  <section class="view" id="v-res"><div class="c3d-report" id="c3dReport"></div></section>
+</main>
+
+<nav class="tabs" aria-label="Điều hướng">
+  <button type="button" data-tab="in" class="on"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="16" r="3"/></svg></span>Nhập liệu</button>
+  <button type="button" data-tab="3d"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span>Xem 3D</button>
+  <div class="fab-slot"><button type="button" class="fab" id="c3dCalc" aria-label="Tính toán xếp hàng"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg></button><span class="lb">Tính</span></div>
+  <button type="button" data-tab="res"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>Kết quả</button>
+  <button type="button" id="moreBtn"><span class="ic"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></span>Lưu</button>
+</nav>
+
+<!-- Bảng chức năng (trượt từ dưới lên) -->
+<div class="sheet-bg" id="sheet" hidden>
+  <div class="sheet" role="dialog" aria-label="Chức năng">
+    <div class="grab"></div>
+    <button type="button" class="c3d-btn sheet-b" id="c3dSave">Lưu phương án</button>
+    <button type="button" class="c3d-btn sheet-b" id="c3dOpen">Phương án đã lưu</button>
+    <button type="button" class="c3d-btn sheet-b" id="c3dExcel">Xuất Excel</button>
+    <button type="button" class="c3d-btn sheet-b" id="c3dPng">Lưu ảnh 3D</button>
+    <button type="button" id="c3dPush" hidden></button>
+    <div class="sheet-row"><span>Giao diện</span>
+      <div class="seg" id="themeSeg"><button type="button" data-v="auto">Hệ thống</button><button type="button" data-v="light">Sáng</button><button type="button" data-v="dark">Tối</button></div></div>
+    <div class="sheet-row" data-notr><span>Language / Ngôn ngữ</span>
+      <div class="seg" id="langSeg"><button type="button" data-v="vi">Tiếng Việt</button><button type="button" data-v="en">English</button></div></div>
+    <a class="sheet-link" id="privLink" href="privacy.html">Chính sách quyền riêng tư</a>
+  </div>
+</div>
+
+<div class="c3d-modal" id="c3dModal" hidden><div class="c3d-dlg" id="c3dDlg"></div></div>
+<div class="c3d-toast" id="c3dToast" hidden></div>
+
+<script src="js/shim.js"></script>
+<script src="js/native-shim.js"></script>
+<script src="lib/three.min.js"></script><!-- three.js r147 (MIT) — do scripts/copy-libs.js chép từ npm -->
+<script src="lib/OrbitControls.js"></script>
+<script src="lib/xlsx.full.min.js"></script><!-- SheetJS (Apache-2.0) -->
+<script src="js/i18n.js"></script>
+<script src="js/container-3d.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

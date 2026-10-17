@@ -1,0 +1,13 @@
+/* Bảng màu --theme-* mà container-3d.css dùng. Tối: container-3d.css (phần redesign) ghi đè nền/viền/nhấn; ở đây định nghĩa Sáng + màu chữ. */
+:root{ color-scheme:light dark; --sat:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)); --sab:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)); --nav-h:64px; }
+html[data-theme="light"]{
+  color-scheme:light;
+  --theme-bg:#F1F4F8; --theme-panel:#FFFFFF; --theme-panel-2:#EAF0F6;
+  --theme-border:rgba(15,32,52,.10); --theme-border-strong:rgba(15,32,52,.22);
+  --theme-accent:#0B6FA4; --theme-accent-dim:#095A86;
+  --theme-text:#14202E; --theme-text-dim:#445166; --theme-text-faint:#6D7A8D;
+}
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --theme-text:#E8EDF4; --theme-text-dim:#A9B3C2; --theme-text-faint:#7F8A9C;
+}
